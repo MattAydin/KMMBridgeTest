@@ -1,17 +1,12 @@
-name: Base-Publish
+name: Publish-XCFramework
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
-      build-debug:
-        description: If set to true, the Xcode framework is debuggable. For release builds, setting to false produces more optimized binaries.
+      debugBuild:
+        description: 'Build a debug version of the framework'
         required: true
         type: boolean
-      publish-tasks:
-        description: By default, the tasks will publish Android AARs and Xcode frameworks. For iOS-only builds, pass in 'kmmBridgePublish'.
-        required: false
-        default: "publishKotlinMultiplatformPublicationToGitHubPackagesRepository publishAndroidDebugPublicationToGitHubPackagesRepository publishAndroidReleasePublicationToGitHubPackagesRepository kmmBridgePublish"
-        type: string
-  workflow_dispatch:
+        default: true
 
 permissions:
   contents: write
@@ -38,9 +33,6 @@ jobs:
         id: output
         run: echo "${{ steps.versionPropertyValue.outputs.propVal }}"
 
-      - name: Touchlab Sample Sanity Check (Ignore this for your CI) # GitHub Packages can have issues with conflicting maven coordinates.
-        uses: touchlab/sample-group-sanity-check@main
-
       - uses: actions/setup-java@v4
         with:
           distribution: "adopt"
@@ -59,7 +51,7 @@ jobs:
       - name: Build Main
         run: |
           ./gradlew  ${{ inputs.publish-tasks }} \
-            -PNATIVE_BUILD_TYPE=${{ inputs.build-debug && 'DEBUG' || 'RELEASE' }} \
+            -PNATIVE_BUILD_TYPE=${{ inputs.debugBuild && 'DEBUG' || 'RELEASE' }} \
             -PGITHUB_ARTIFACT_RELEASE_ID=${{ steps.devrelease.outputs.id }} \
             -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} \
             -PGITHUB_REPO=${{ github.repository }} \

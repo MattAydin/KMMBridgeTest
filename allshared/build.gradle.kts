@@ -4,7 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kmmbridge)
     alias(libs.plugins.skie)
-    `maven-publish`
+//    `maven-publish`
 }
 
 kotlin {
